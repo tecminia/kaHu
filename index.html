@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEMPDEC</title>
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+  <noscript>Ative o JavaScript para acessar o sistema.</noscript>
+
+  <!-- Apenas decide o destino: autenticado -> cadastro, senão -> login -->
+  <script type="module">
+    import { auth } from './js/firebase-config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const cancelar = onAuthStateChanged(auth, (user) => {
+      cancelar();
+      window.location.replace(user ? "cadastro.html" : "login.html");
+    });
+  </script>
+</body>
+</html>
