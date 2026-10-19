@@ -192,7 +192,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfigAuth = {
       apiKey: "AIzaSyBCcGYGrMU67_lMh3LHyGfcXGGNpJXPRdY",
@@ -203,9 +205,8 @@
       appId: "1:618228690979:web:db91659f8211b022c24196"
     };
     const auth = getAuth(initializeApp(firebaseConfigAuth));
-    import {
-      signInWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
 
     function mostrarMensagem(texto) {
       const msg = document.getElementById("mensagem");
@@ -213,61 +214,50 @@
       msg.classList.add("show");
     }
 
-    window.togglePassword = function () {
-      const passwordInput = document.getElementById('senha');
-      const toggleIcon = document.getElementById('toggle-password');
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.innerHTML = '🙈';
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.innerHTML = '👁️';
-      }
-    };
+    // Retorno do login por redirecionamento (usado quando o popup é bloqueado)
+    getRedirectResult(auth)
+      .then((resultado) => {
+        if (resultado && resultado.user) window.location.href = "cadastro.html";
+      })
+      .catch((error) => {
+        console.error("Erro no retorno do login:", error);
+        mostrarMensagem("Erro ao entrar com o Google. Tente novamente.");
+      });
 
-    window.login = async function () {
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
-      const botao = document.querySelector("button[type='submit']");
-      const mensagem = document.getElementById("mensagem");
-      mensagem.classList.remove("show");
+    window.loginGoogle = async function () {
+      const botao = document.getElementById("btnGoogle");
+      const textoOriginal = botao.innerHTML;
+      document.getElementById("mensagem").classList.remove("show");
 
-      if (!email || !senha) {
-        mostrarMensagem("Por favor, preencha todos os campos.");
-        return;
-      }
-
-      const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      if (!emailValido) {
-        mostrarMensagem("Digite um email válido.");
-        return;
-      }
-
-      const originalText = botao.innerHTML;
       botao.disabled = true;
       botao.innerHTML = `Entrando <span class="spinner"></span>`;
 
       try {
-        await signInWithEmailAndPassword(auth, email, senha);
+        await signInWithPopup(auth, provider);
         window.location.href = "cadastro.html";
       } catch (error) {
         console.error("Erro ao logar:", error);
         switch (error.code) {
-          case "auth/invalid-email":
-            mostrarMensagem("Formato de email inválido.");
+          case "auth/popup-blocked":
+            await signInWithRedirect(auth, provider);
+            return;
+          case "auth/popup-closed-by-user":
+          case "auth/cancelled-popup-request":
             break;
-          case "auth/user-not-found":
-            mostrarMensagem("Usuário não encontrado.");
+          case "auth/unauthorized-domain":
+            mostrarMensagem("Domínio não autorizado no Firebase (Authentication > Configurações > Domínios autorizados).");
             break;
-          case "auth/wrong-password":
-            mostrarMensagem("Senha incorreta.");
+          case "auth/operation-not-allowed":
+            mostrarMensagem("Login com Google não está ativado no Firebase.");
+            break;
+          case "auth/network-request-failed":
+            mostrarMensagem("Sem conexão. Verifique a internet.");
             break;
           default:
-            mostrarMensagem("Erro ao fazer login. Tente novamente.");
+            mostrarMensagem("Erro ao entrar com o Google. Tente novamente.");
         }
-      } finally {
         botao.disabled = false;
-        botao.innerHTML = originalText;
+        botao.innerHTML = textoOriginal;
       }
     };
   </script>
@@ -277,18 +267,7 @@
     <img src="assets/favicon.ico" alt="Logo Mtag" class="logo" width="150" />
     <h2>Login</h2>
     <div id="mensagem" class="mensagem"></div>
-    <form onsubmit="login(); return false;">
-      <label for="email">Email:</label>
-      <div class="input-container">
-        <input type="email" id="email" name="email" placeholder="Digite seu email" aria-label="Email" required />
-      </div>
-      <label for="senha">Senha:</label>
-      <div class="input-container">
-        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" aria-label="Senha" required />
-        <span id="toggle-password" class="toggle-password" onclick="togglePassword()">👁️</span>
-      </div>
-      <button type="submit">Entrar</button>
-    </form>
+    <button type="button" id="btnGoogle" onclick="loginGoogle()"><svg width="20" height="20" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:10px" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.100 0 24s.9 7.600 2.600 10.800l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.300 0 11.600-2.100 15.400-5.700l-7.500-5.800c-2.100 1.400-4.800 2.300-7.900 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>Entrar com Google</button>
   </div>
 </body>
 </html>
