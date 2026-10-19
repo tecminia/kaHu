@@ -238,7 +238,7 @@
 
       try {
         await signInWithEmailAndPassword(auth, email, senha);
-        window.location.href = "index.html";
+        window.location.href = "cadastro.html";
       } catch (error) {
         console.error("Erro ao logar:", error);
         switch (error.code) {

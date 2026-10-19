@@ -7,20 +7,29 @@
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
 </head>
 <body>
-  <noscript>Ative o JavaScript para acessar o sistema.</noscript>
+  <p id="status" style="font-family:sans-serif;text-align:center;margin-top:30vh;color:#555">Carregando...</p>
 
   <!-- Apenas decide o destino: logado -> cadastro.html, não logado -> login.html -->
   <script type="module">
-    import { auth } from './js/firebase-config.js';
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
+    const status = document.getElementById("status");
     let redirecionado = false;
 
-    onAuthStateChanged(auth, (user) => {
+    function ir(destino) {
       if (redirecionado) return;
       redirecionado = true;
-      window.location.replace(user ? "cadastro.html" : "login.html");
-    });
+      window.location.replace(destino);
+    }
+
+    try {
+      const { auth } = await import("./js/firebase-config.js");
+      const { onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+
+      onAuthStateChanged(auth, (user) => ir(user ? "cadastro.html" : "login.html"));
+    } catch (erro) {
+      console.error("Erro ao verificar login:", erro);
+      status.textContent = "Não foi possível verificar o login: " + erro.message;
+      setTimeout(() => ir("login.html"), 3000);
+    }
   </script>
 </body>
 </html>
