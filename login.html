@@ -2,191 +2,140 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mtag</title>    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar - SEMPDEC</title>
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none; /* Impede seleção de texto */
+    :root {
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --navy: #0b1b33;
+      --navy-2: #12284d;
+      --accent: #f97316;
+      --primary: #2563eb;
+      --text: #0f172a;
+      --text-2: #475569;
+      --text-3: #64748b;
+      --border: #e3e8f0;
+      --border-strong: #d2d9e5;
     }
-
+    *, *::before, *::after { box-sizing: border-box; }
+    html { color-scheme: light; }
     body {
-      background: #ff9340;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+      margin: 0; min-height: 100vh;
+      font-family: var(--font); font-size: 15px; line-height: 1.5; color: var(--text);
+      background: #f3f5f9; -webkit-font-smoothing: antialiased;
     }
+    h1, h2, p, ul { margin: 0; padding: 0; }
+    ul { list-style: none; }
 
-    .login-container {
-      background: #ffffff;
-      padding: 40px 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
+    .shell { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); min-height: 100vh; }
 
-    .logo {
-      max-width: 150px;
-      height: auto;
-      margin-bottom: 30px;
-      animation: pulse 2s infinite ease-in-out;
-      border-radius: 50%;
-      box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.2);
+    /* ---------- Painel de marca ---------- */
+    .brand-panel {
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 48px 64px;
+      color: #dbe5f5;
+      background:
+        radial-gradient(70% 55% at 0% 0%, rgba(249, 115, 22, .22), transparent 60%),
+        radial-gradient(60% 50% at 100% 100%, rgba(59, 130, 246, .28), transparent 60%),
+        linear-gradient(160deg, var(--navy-2) 0%, var(--navy) 100%);
     }
+    .brand-panel::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
+      background-size: 44px 44px;
+      -webkit-mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%);
+              mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%);
+    }
+    .brand-panel > * { position: relative; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-mark {
+      width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px;
+      background: linear-gradient(145deg, #fb923c, #ea580c);
+      box-shadow: 0 10px 24px -8px rgba(249, 115, 22, .75);
+    }
+    .brand-mark svg { width: 24px; height: 24px; }
+    .brand strong { display: block; color: #fff; font-size: 19px; font-weight: 700; letter-spacing: .05em; line-height: 1.2; }
+    .brand small { display: block; font-size: 13px; color: #8ea2c0; }
 
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 2px #ff6a00);
-      }
-      50% {
-        transform: scale(1.05);
-        filter: drop-shadow(0 0 8px #007bff);
-      }
+    .hero { max-width: 540px; }
+    .hero h1 { color: #fff; font-size: 40px; font-weight: 800; line-height: 1.12; letter-spacing: -.03em; }
+    .hero h1 span { color: #fdba74; }
+    .hero > p { margin-top: 18px; font-size: 16.5px; color: #b6c6e0; max-width: 480px; }
+    .features { margin-top: 36px; display: grid; gap: 18px; }
+    .features li { display: flex; align-items: flex-start; gap: 14px; }
+    .features .ico {
+      width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 11px;
+      background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .1);
     }
+    .features .ico svg { width: 18px; height: 18px; }
+    .features strong { display: block; color: #fff; font-size: 14.5px; font-weight: 600; }
+    .features span { display: block; font-size: 13.5px; color: #8ea2c0; }
+    .brand-foot { font-size: 12.5px; color: #6f84a6; }
 
-    h2 {
-      color: #ff6a00;
-      margin-bottom: 25px;
-      font-weight: 600;
-      font-size: 1.8rem;
+    /* ---------- Painel de login ---------- */
+    .login-panel { display: grid; place-items: center; padding: 40px 32px; background: #f3f5f9; }
+    .login-card {
+      width: 100%; max-width: 420px; padding: 40px 36px 32px;
+      background: #fff; border: 1px solid var(--border); border-radius: 20px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .05), 0 24px 48px -24px rgba(15, 23, 42, .22);
     }
-
-    label {
-      display: block;
-      text-align: left;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #007bff;
-      font-size: 0.9rem;
+    .login-card .mini-mark {
+      width: 48px; height: 48px; display: grid; place-items: center; margin-bottom: 22px; border-radius: 14px;
+      background: #eef3ff; color: var(--primary);
     }
-
-    .input-container {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px 40px 12px 14px;
-      border: 2px solid #007bff;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    input:focus {
-      border-color: #ff6a00;
-      box-shadow: 0 0 8px rgba(255, 106, 0, 0.3);
-      outline: none;
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #007bff;
-      font-size: 1.2rem;
-    }
-
-    button {
-      width: 100%;
-      background: #ff6a00;
-      color: #ffffff;
-      padding: 14px 0;
-      font-size: 1.1rem;
-      font-weight: 700;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-bottom: 10px;
-    }
-
-    button:hover:not(:disabled) {
-      background: #e05a00;
-      transform: translateY(-2px);
-    }
-
-    button:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
-    }
+    .login-card .mini-mark svg { width: 24px; height: 24px; }
+    .login-card h2 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    .login-card .lead { margin-top: 8px; color: var(--text-3); font-size: 14.5px; }
 
     .mensagem {
-      margin-bottom: 20px;
-      padding: 12px;
-      border-radius: 6px;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 500;
-      background-color: #ffe0e0;
-      color: #a00;
-      border: 1px solid #e00;
-      display: none;
-      transition: opacity 0.3s ease;
+      display: none; margin-top: 22px; padding: 12px 14px;
+      border: 1px solid #fecaca; border-radius: 10px; background: #fef2f2; color: #b91c1c;
+      font-size: 13.5px; font-weight: 500; line-height: 1.45;
     }
+    .mensagem.show { display: block; }
 
-    .mensagem.show {
-      display: block;
-      opacity: 1;
+    #btnGoogle {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%; height: 50px; margin-top: 28px; padding: 0 18px;
+      border: 1px solid var(--border-strong); border-radius: 12px; background: #fff; color: var(--text);
+      font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+      transition: background .15s, border-color .15s, box-shadow .15s, transform .05s;
     }
+    #btnGoogle:hover:not(:disabled) { background: #f8fafc; border-color: #b7c2d4; box-shadow: 0 4px 14px -6px rgba(15, 23, 42, .25); }
+    #btnGoogle:active:not(:disabled) { transform: translateY(1px); }
+    #btnGoogle:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+    #btnGoogle:disabled { opacity: .7; cursor: progress; }
+    #btnGoogle svg { width: 20px; height: 20px; flex: none; }
 
     .spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 3px solid #ffffff;
-      border-top: 3px solid #888;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      vertical-align: middle;
-      margin-left: 8px;
+      display: inline-block; width: 16px; height: 16px; margin-left: 4px; vertical-align: middle;
+      border: 2px solid #cbd5e1; border-top-color: var(--primary); border-radius: 50%;
+      animation: girar .8s linear infinite;
     }
+    @keyframes girar { to { transform: rotate(360deg); } }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 26px 0 18px; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .legal { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 10px; background: #f8fafc; color: var(--text-3); font-size: 12.5px; line-height: 1.5; }
+    .legal svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--text-3); }
+
+    @media (max-width: 960px) {
+      .shell { grid-template-columns: 1fr; }
+      .brand-panel { display: none; }
+      .login-panel { min-height: 100vh; padding: 24px 16px; }
+      .login-card { padding: 32px 24px 26px; }
     }
-
-    .register-link {
-      font-size: 0.9rem;
-      color: #007bff;
-      margin-top: 12px;
-      display: block;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    @media (max-width: 400px) {
-      .login-container {
-        padding: 30px 20px;
-        max-width: 90%;
-      }
-
-      .logo {
-        max-width: 120px;
-      }
-
-      h2 {
-        font-size: 1.5rem;
-      }
-
-      button {
-        font-size: 1rem;
-        padding: 12px 0;
-      }
+    @media (max-width: 1200px) and (min-width: 961px) {
+      .brand-panel { padding: 40px 40px; }
+      .hero h1 { font-size: 34px; }
     }
   </style>
 
@@ -263,11 +212,62 @@
   </script>
 </head>
 <body>
-  <div class="login-container">
-    <img src="assets/favicon.ico" alt="Logo Mtag" class="logo" width="150" />
-    <h2>Login</h2>
-    <div id="mensagem" class="mensagem"></div>
-    <button type="button" id="btnGoogle" onclick="loginGoogle()"><svg width="20" height="20" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:10px" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.100 0 24s.9 7.600 2.600 10.800l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.300 0 11.600-2.100 15.400-5.700l-7.500-5.800c-2.100 1.400-4.800 2.300-7.900 2.300-6.300 0-11.600-4.100-13.500-9.800l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>Entrar com Google</button>
+  <div class="shell">
+    <aside class="brand-panel">
+      <div class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.2 8.2 8 9 4.8-.8 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <div>
+          <strong>SEMPDEC</strong>
+          <small>Secretaria Municipal de Proteção e Defesa Civil</small>
+        </div>
+      </div>
+
+      <div class="hero">
+        <h1>Gestão de famílias atendidas, <span>simples e segura.</span></h1>
+        <p>Cadastre famílias, consulte registros por comunidade e emita relatórios e recibos em PDF em um só lugar.</p>
+        <ul class="features">
+          <li>
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fdba74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <div><strong>Cadastro de famílias</strong><span>Validação de CPF e alerta de duplicidades.</span></div>
+          </li>
+          <li>
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fdba74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg></span>
+            <div><strong>Relatórios e recibos</strong><span>PDFs prontos por comunidade e motivo do auxílio.</span></div>
+          </li>
+          <li>
+            <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fdba74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+            <div><strong>Acesso protegido</strong><span>Entrada autenticada com sua conta Google.</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="brand-foot">© 2025 Desenvolvido por Darlan Cardoso | V. 3.28.6</div>
+    </aside>
+
+    <main class="login-panel">
+      <div class="login-card">
+        <div class="mini-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.2 8.2 8 9 4.8-.8 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <h2>Acesse sua conta</h2>
+        <p class="lead">Entre com sua conta Google para continuar no sistema.</p>
+
+        <div id="mensagem" class="mensagem" role="alert"></div>
+
+        <button type="button" id="btnGoogle" onclick="loginGoogle()">
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.4-5.7l-7.5-5.8c-2.1 1.4-4.8 2.3-7.9 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+          Entrar com Google
+        </button>
+
+        <div class="divider">acesso restrito</div>
+        <div class="legal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>Este sistema contém dados pessoais de famílias atendidas. O uso é restrito a servidores autorizados.</span>
+        </div>
+      </div>
+    </main>
   </div>
 </body>
 </html>

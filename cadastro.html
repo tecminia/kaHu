@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro de Famílias</title>
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -10,630 +10,523 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/styles/choices.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/choices.js@10.2.0/public/assets/scripts/choices.min.js"></script>
   <style>
-    .oculto { display: none !important; }
+    /* =====================================================================
+       Design tokens
+       ===================================================================== */
+    :root {
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
-    /* ===== Tela: Famílias Cadastradas (lista) ===== */
-#viewRegistros * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-#viewRegistros {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-}
-#viewRegistros header {
-  background-color: #0077cc;
-  color: white;
-  padding: 1.5rem;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-#viewRegistros h1 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-#viewRegistros main {
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 1200px;
-  margin: 1.5rem 0;
-}
-#viewRegistros .fichas-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-#viewRegistros .controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem; 
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-#viewRegistros #contador {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #333;
-}
-#viewRegistros input[type="text"], #viewRegistros select {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  width: 100%;
-  max-width: 300px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-#viewRegistros input[type="text"]:focus, #viewRegistros select:focus {
-  border-color: #0077cc;
-  box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.2);
-  outline: none;
-}
-#viewRegistros .search-container {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-#viewRegistros .search-btn, #viewRegistros .clear-search {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background-color: #0077cc;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-#viewRegistros .clear-search {
-  background-color: #6c757d;
-}
-#viewRegistros .search-btn:hover, #viewRegistros .clear-search:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.9;
-}
-#viewRegistros button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  background-color: #ff6b00;
-  color: white;
-  transition: all 0.3s ease;
-  margin-right: 0.5rem; 
-}
-#viewRegistros button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.9;
-}
-#viewRegistros button.atualizar {
-  background-color: #28a745;
-}
-#viewRegistros button.atualizar.disabled {
-  background-color: #dc3545;
-  cursor: not-allowed;
-}
-#viewRegistros button.atualizar.disabled:hover {
-  transform: none;
-  box-shadow: none;
-  opacity: 1;
-}
-#viewRegistros #fichasContainer {
-  overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  display: none; 
-}
-#viewRegistros #fichasTabela {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  overflow: hidden;
-}
-#viewRegistros #fichasTabela thead {
-  background-color: #e0e7ef;
-  color: #333;
-}
-#viewRegistros #fichasTabela th, #viewRegistros #fichasTabela td {
-  padding: 0.75rem;
-  text-align: left;
-  border: 1px solid #ddd;
-  font-size: 0.95rem;
-}
-#viewRegistros #fichasTabela tbody tr:nth-child(even) {
-  background-color: #f0f4f8;
-}
-#viewRegistros #fichasTabela tbody tr:hover {
-  background-color: #e6f0fa;
-  transition: background-color 0.2s ease;
-}
-#viewRegistros #fichasTabela td button {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-right: 0.5rem;
-}
-#viewRegistros #fichasTabela td button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.9;
-}
-#viewRegistros #fichasTabela td button.visualizar {
-  background-color: #17a2b8; 
-}
-#viewRegistros #fichasTabela td button.editar {
-  background-color: #0077cc; 
-}
-#viewRegistros #fichasTabela td button.excluir {
-  background-color: #dc3545; 
-}
-#viewRegistros #fichasTabela td button svg {
-  width: 16px;
-  height: 16px;
-  fill: white; 
-}
-#viewRegistros .highlight-duplicate {
-  background-color: #ffe5e5 !important;
-}
-#viewRegistros #duplicadosContainer {
-  display: none;
-  background: #f9f9f9;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-top: 1rem;
-  max-height: 300px;
-  overflow-y: auto;
-}
-#viewRegistros #duplicadosContainer h3 {
-  margin: 0 0 0.5rem;
-  color: #c0392b;
-  font-size: 1.25rem;
-}
-#viewRegistros #listaDuplicados li {
-  padding: 0.5rem 0;
-  font-size: 0.95rem;
-}
-#loadingSpinner {
-  display: none;
-  position: fixed;
-  z-index: 999;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #e74c3c;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spinCenter 1s linear infinite;
-}
-@keyframes spinCenter {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-#viewRegistros .mdl-reg {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-}
-#viewRegistros .mdl-reg-content {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-#viewRegistros .mdl-reg-content h2 {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #333;
-}
-#viewRegistros .mdl-reg-content label {
-  display: block;
-  margin: 0.5rem 0 0.2rem;
-  font-weight: 600;
-}
-#viewRegistros .mdl-reg-content input, #viewRegistros .mdl-reg-content textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-#viewRegistros .mdl-reg-content button {
-  margin-right: 1rem;
-}
-#viewRegistros .mdl-reg-content button.cancelar {
-  background-color: #6c757d;
-}
-@media (max-width: 768px) {
-#viewRegistros h1 {
-    font-size: 1.75rem;
-  }
-#viewRegistros main {
-    padding: 1rem;
-    width: 95%;
-  }
-#viewRegistros .controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem; 
-  }
-#viewRegistros button {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
-    width: 100%;
-    margin-right: 0;
-  }
-#viewRegistros input[type="text"], #viewRegistros select {
-    padding: 0.6rem;
-    font-size: 0.9rem;
-  }
-#viewRegistros .search-btn, #viewRegistros .clear-search {
-    width: 35px;
-    height: 35px;
-  }
-#viewRegistros #fichasTabela th, #viewRegistros #fichasTabela td {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
-#viewRegistros #fichasTabela td button {
-    width: 28px;
-    height: 28px;
-  }
-#viewRegistros #fichasTabela td button svg {
-    width: 14px;
-    height: 14px;
-  }
-#viewRegistros .mdl-reg-content {
-    padding: 1rem;
-    width: 95%;
-  }
-}
-@media (max-width: 480px) {
-#viewRegistros h1 {
-    font-size: 1.5rem;
-  }
-#viewRegistros main {
-    padding: 0.75rem;
-  }
-#viewRegistros button {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    margin-right: 0;
-  }
-#viewRegistros input[type="text"], #viewRegistros select {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-  }
-#viewRegistros .search-btn, #viewRegistros .clear-search {
-    width: 30px;
-    height: 30px;
-  }
-#viewRegistros #fichasTabela th, #viewRegistros #fichasTabela td {
-    padding: 0.4rem;
-    font-size: 0.75rem;
-  }
-#viewRegistros #fichasTabela td button {
-    width: 24px;
-    height: 24px;
-  }
-#viewRegistros #fichasTabela td button svg {
-    width: 12px;
-    height: 12px;
-  }
-#viewRegistros .mdl-reg-content {
-    padding: 0.75rem;
-  }
-}
-#viewRegistros .mdl-reg {
-  display: none; 
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); 
-  backdrop-filter: blur(3px); 
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-#viewRegistros .mdl-reg-content {
-  background: #fff;
-  margin: 5% auto;
-  padding: 2rem;
-  border-radius: 1rem;
-  max-width: 520px;
-  width: 90%;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.4s ease;
-  font-family: "Segoe UI", sans-serif;
-  position: relative;
-}
-#viewRegistros .mdl-reg-title {
-  margin: 0 0 1rem 0;
-  font-size: 1.6rem;
-  color: #222;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 0.5rem;
-  text-align: center;
-}
-#viewRegistros #viewContent {
-  margin-top: 1rem;
-  color: #444;
-  font-size: 0.95rem; 
-  line-height: 1.6;
-}
-#viewRegistros .close-btn {
-  margin-top: 2rem;
-  background-color: #ff7a00; 
-  color: #fff;
-  border: none;
-  padding: 0.7rem 1.4rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.25s ease, transform 0.2s ease;
-}
-#viewRegistros .close-btn:hover {
-  background-color: #e06600;
-  transform: scale(1.05);
-}
-@keyframes slideIn {
-  from {
-    transform: translateY(-40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (max-width: 480px) {
-#viewRegistros .mdl-reg-content {
-    padding: 1.5rem;
-    border-radius: 0.8rem;
-  }
-#viewRegistros .mdl-reg-title {
-    font-size: 1.3rem;
-  }
-#viewRegistros #viewContent {
-    font-size: 0.9rem;
-  }
-#viewRegistros .close-btn {
-    width: 100%;
-  }
-}
-#viewRegistros button.sair { background-color: #dc3545; }
+      --bg: #f3f5f9;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --border: #e3e8f0;
+      --border-strong: #d2d9e5;
 
+      --text: #0f172a;
+      --text-2: #475569;
+      --text-3: #64748b;
+      --placeholder: #94a3b8;
 
-    /* ===== Tela: Cadastro de Famílias (formulário) ===== */
-#viewCadastro {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --primary: #2563eb;
+      --primary-600: #1d4ed8;
+      --primary-50: #eef3ff;
+      --primary-100: #dbe6ff;
+      --ring: rgba(37, 99, 235, .18);
+
+      --navy: #0b1b33;
+      --navy-2: #12284d;
+      --accent: #f97316;
+
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --danger: #dc2626;
+      --danger-bg: #fee2e2;
+      --warning: #b45309;
+      --warning-bg: #fef3c7;
+      --purple: #7c3aed;
+
+      --radius: 14px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, .05);
+      --shadow: 0 1px 3px rgba(15, 23, 42, .05), 0 12px 28px -16px rgba(15, 23, 42, .16);
+      --sidebar-w: 256px;
     }
-#viewCadastro {
-      background: #f7f8fa;
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { color-scheme: light; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font-family: inherit; }
+    h1, h2, h3, p, ul { margin: 0; padding: 0; }
+    ul { list-style: none; }
+
+    .oculto { display: none !important; }
+    .uppercase { text-transform: uppercase; }
+
+    /* =====================================================================
+       Shell: sidebar + conteúdo
+       ===================================================================== */
+    .app { min-height: 100vh; }
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-w);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 2rem;
+      padding: 22px 16px 16px;
+      color: #cbd5e1;
+      background:
+        radial-gradient(120% 60% at 0% 0%, rgba(249, 115, 22, .10), transparent 55%),
+        linear-gradient(180deg, var(--navy-2) 0%, var(--navy) 100%);
+      z-index: 50;
     }
-#viewCadastro header {
-      margin-bottom: 2rem;
+
+    .brand { display: flex; align-items: center; gap: 12px; padding: 4px 10px 22px; }
+    .brand-mark {
+      width: 38px; height: 38px; flex: none;
+      display: grid; place-items: center;
+      border-radius: 11px;
+      background: linear-gradient(145deg, #fb923c, #ea580c);
+      box-shadow: 0 6px 16px -6px rgba(249, 115, 22, .7);
     }
-#viewCadastro h1 {
-      font-size: 2rem;
-      color: #1a1a1a;
-      font-weight: 600;
-      text-align: center;
+    .brand-mark svg { width: 20px; height: 20px; }
+    .brand strong { display: block; color: #fff; font-size: 16px; font-weight: 700; letter-spacing: .04em; line-height: 1.2; }
+    .brand small { display: block; color: #8ea2c0; font-size: 12px; }
+
+    .nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav-label {
+      padding: 14px 12px 6px;
+      font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+      color: #6f84a6;
     }
-#viewCadastro main {
-      width: 100%;
-      max-width: 900px;
-      background: #ffffff;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-#viewCadastro label {
-      font-size: 0.95rem;
-      color: #333;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-#viewCadastro input, #viewCadastro select {
-      text-transform: uppercase;
-    }
-#viewCadastro input:disabled {
-      background: #e5e7eb;
-      cursor: not-allowed;
-    }
-#viewCadastro .localidade-container {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-end;
-    }
-#viewCadastro .localidade-container select, #viewCadastro .localidade-container input {
-      flex: 1;
-    }
-#viewCadastro .cpf-feedback, #viewCadastro .secao-feedback, #viewCadastro .zona-feedback, #viewCadastro .idade-feedback {
-      font-size: 0.85rem;
-      margin-top: 0.3rem;
-      min-height: 1.2rem;
-    }
-#viewCadastro .cpf-valido, #viewCadastro .secao-valido, #viewCadastro .zona-valido {
-      color: #16a34a;
-    }
-#viewCadastro .cpf-invalido, #viewCadastro .secao-invalido, #viewCadastro .zona-invalido {
-      color: #dc2626;
-    }
-#viewCadastro .cpf-duplicado {
-      color: #9333ea;
-    }
-#viewCadastro .mdl-com {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-#viewCadastro .mdl-com-content {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 600px;
-      max-height: 80vh;
-      overflow-y: auto;
+    .nav-item {
       position: relative;
-    }
-#viewCadastro .mdl-com-content h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-#viewCadastro .mdl-com-content input[type="text"] {
+      display: flex; align-items: center; gap: 12px;
       width: 100%;
-      margin-bottom: 1rem;
-    }
-#viewCadastro .comunidade-lista {
-      list-style: none;
-    }
-#viewCadastro .comunidade-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-#viewCadastro .comunidade-item span {
-      flex: 1;
-    }
-#viewCadastro .comunidade-item button {
-      background: none;
-      border: none;
+      padding: 10px 12px;
+      border: 0; border-radius: 10px;
+      background: transparent;
+      color: #cbd5e1;
+      font-size: 14px; font-weight: 500; text-align: left;
       cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0.5rem;
+      transition: background .15s, color .15s;
     }
-#viewCadastro .btn-editar {
-      color: #2563eb;
+    .nav-item i { width: 18px; text-align: center; font-size: 15px; color: #8ea2c0; transition: color .15s; }
+    .nav-item:hover { background: rgba(255, 255, 255, .06); color: #fff; }
+    .nav-item:hover i { color: #fff; }
+    .nav-item.active { background: rgba(255, 255, 255, .10); color: #fff; }
+    .nav-item.active i { color: var(--accent); }
+    .nav-item.active::before {
+      content: ''; position: absolute; left: -16px; top: 9px; bottom: 9px; width: 3px;
+      border-radius: 0 3px 3px 0; background: var(--accent);
     }
-#viewCadastro .btn-excluir {
-      color: #dc2626;
-    }
-#viewCadastro .close-modal {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-#viewCadastro .loading-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-#viewCadastro .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid #2563eb;
+    .nav-item:focus-visible { outline: 2px solid #93b4ff; outline-offset: 2px; }
+
+    .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .08); }
+    .user { display: flex; align-items: center; gap: 12px; padding: 8px 10px 12px; min-width: 0; }
+    .user-avatar {
+      width: 36px; height: 36px; flex: none;
+      display: grid; place-items: center;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
+      background: #1e3a6b center / cover no-repeat;
+      color: #fff; font-weight: 600; font-size: 14px;
     }
-@keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .user-info { min-width: 0; }
+    .user-info strong { display: block; color: #fff; font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-info small { display: block; color: #8ea2c0; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nav-item.logout:hover { background: rgba(239, 68, 68, .14); color: #fecaca; }
+    .nav-item.logout:hover i { color: #fecaca; }
+
+    .main-area { margin-left: var(--sidebar-w); min-height: 100vh; }
+    .view { max-width: 1360px; margin: 0 auto; padding: 32px 36px 56px; }
+
+    /* =====================================================================
+       Cabeçalho de página
+       ===================================================================== */
+    .page-header {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+      margin-bottom: 24px;
     }
-@media (max-width: 768px) {
-#viewCadastro main {
-        padding: 1.5rem;
+    .breadcrumb { font-size: 12.5px; color: var(--text-3); margin-bottom: 6px; }
+    .breadcrumb b { color: var(--text-2); font-weight: 500; }
+    .page-header h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+    .subtitle { margin-top: 4px; color: var(--text-3); font-size: 14px; }
+    .page-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    /* =====================================================================
+       Botões
+       ===================================================================== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 40px; padding: 0 16px;
+      border: 1px solid transparent; border-radius: var(--radius-md);
+      font-size: 14px; font-weight: 600; line-height: 1; white-space: nowrap;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, box-shadow .15s, color .15s, transform .05s;
+    }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    .btn:disabled, .btn.disabled { opacity: .55; cursor: not-allowed; }
+
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 2px rgba(37, 99, 235, .35); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-600); }
+    .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+    .btn-secondary:hover:not(:disabled) { background: var(--surface-2); border-color: #bcc6d6; }
+    .btn-ghost { background: transparent; color: var(--text-2); }
+    .btn-ghost:hover:not(:disabled) { background: rgba(15, 23, 42, .05); color: var(--text); }
+    .btn-sm { height: 34px; padding: 0 12px; font-size: 13px; gap: 7px; }
+    .btn-lg { height: 46px; font-size: 15px; }
+    .btn-block { width: 100%; }
+    .btn i { font-size: 13px; }
+
+    .icon-btn {
+      width: 36px; height: 36px; flex: none;
+      display: inline-grid; place-items: center;
+      border: 0; border-radius: 9px;
+      background: transparent; color: var(--text-3);
+      font-size: 16px; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .icon-btn:hover { background: rgba(15, 23, 42, .06); color: var(--text); }
+    .icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+    /* =====================================================================
+       Cards
+       ===================================================================== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-head h2 { font-size: 16px; font-weight: 650; letter-spacing: -.01em; }
+    .card-head p { margin-top: 2px; font-size: 13px; color: var(--text-3); }
+    .card-body { padding: 22px; }
+
+    /* =====================================================================
+       Painel: KPIs
+       ===================================================================== */
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .kpi { display: flex; align-items: center; gap: 14px; padding: 18px 20px; }
+    .kpi-icon {
+      width: 46px; height: 46px; flex: none; display: grid; place-items: center;
+      border-radius: 12px; font-size: 18px;
+    }
+    .kpi-icon.blue { background: var(--primary-50); color: var(--primary); }
+    .kpi-icon.green { background: #e3f8ec; color: var(--success); }
+    .kpi-icon.amber { background: var(--warning-bg); color: var(--warning); }
+    .kpi-icon.violet { background: #efe9ff; color: var(--purple); }
+    .kpi-label { display: block; font-size: 12.5px; font-weight: 500; color: var(--text-3); }
+    .kpi-value { display: block; margin-top: 2px; font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .kpi-value.text { font-size: 19px; }
+    .kpi-sub { display: block; font-size: 12px; color: var(--text-3); min-height: 16px; }
+
+    /* =====================================================================
+       Painel: barra de busca e filtros
+       ===================================================================== */
+    .toolbar { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding: 18px 22px; margin-bottom: 20px; }
+    .search-container { display: flex; align-items: center; gap: 10px; flex: 1 1 420px; min-width: 0; }
+    .search-field { position: relative; flex: 1; min-width: 0; }
+    .search-field > i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--placeholder); font-size: 14px; pointer-events: none; }
+    .search-field .form-control { padding-left: 40px; }
+    .filters { display: flex; gap: 12px; flex-wrap: wrap; }
+    .filter { display: flex; flex-direction: column; gap: 6px; min-width: 190px; }
+    .filter .form-label { margin: 0; }
+
+    /* =====================================================================
+       Formulários (inputs)
+       ===================================================================== */
+    .form-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text); }
+    .form-label .req { color: var(--danger); }
+    .form-label .opt { font-weight: 400; color: var(--text-3); }
+
+    .form-control, .form-select {
+      display: block; width: 100%; height: 42px;
+      padding: 0 13px;
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      background: var(--surface); color: var(--text);
+      font-size: 14px;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    textarea.form-control { height: auto; min-height: 84px; padding: 10px 13px; resize: vertical; line-height: 1.5; }
+    .form-control::placeholder { color: var(--placeholder); text-transform: none; }
+    .form-control:hover, .form-select:hover { border-color: #b7c2d4; }
+    .form-control:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+    .form-control:disabled { background: var(--surface-2); cursor: not-allowed; }
+    .form-select {
+      appearance: none; -webkit-appearance: none; padding-right: 36px; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    #viewCadastro .form-control, #viewCadastro .form-select { text-transform: uppercase; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
+    .span-2 { grid-column: 1 / -1; }
+
+    .cpf-feedback, .idade-feedback { margin-top: 6px; font-size: 12.5px; font-weight: 500; }
+    .cpf-feedback:empty, .idade-feedback:empty { display: none; }
+    .cpf-valido, .secao-valido, .zona-valido { color: var(--success); }
+    .cpf-invalido, .secao-invalido, .zona-invalido { color: var(--danger); }
+    .cpf-duplicado { color: var(--purple); }
+    .idade-feedback { color: var(--text-3); }
+
+    /* =====================================================================
+       Formulário de cadastro (layout em duas colunas)
+       ===================================================================== */
+    .form-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px; align-items: start; }
+    .form-col { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+    .form-col.side { position: sticky; top: 24px; }
+
+    .section-head { display: flex; align-items: center; gap: 14px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .section-icon {
+      width: 40px; height: 40px; flex: none; display: grid; place-items: center;
+      border-radius: 11px; background: var(--primary-50); color: var(--primary); font-size: 16px;
+    }
+    .section-icon.violet { background: #efe9ff; color: var(--purple); }
+    .section-icon.amber { background: var(--warning-bg); color: var(--warning); }
+    .section-head h2 { font-size: 15.5px; font-weight: 650; letter-spacing: -.01em; }
+    .section-head p { font-size: 13px; color: var(--text-3); }
+
+    .localidade-container { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .nova-localidade { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+    .field-hint { margin-top: 6px; font-size: 12.5px; color: var(--text-3); }
+
+    .actions-card { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .actions-card .tip { display: flex; gap: 10px; margin-top: 6px; padding: 12px 14px; border-radius: 10px; background: var(--primary-50); color: #1e429f; font-size: 12.5px; line-height: 1.5; }
+    .actions-card .tip i { margin-top: 2px; }
+
+    /* Choices.js */
+    .choices { margin: 0; font-size: 14px; }
+    .choices__inner {
+      min-height: 42px; padding: 5px 8px 3px;
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      background: var(--surface); font-size: 14px;
+    }
+    .choices:hover .choices__inner { border-color: #b7c2d4; }
+    .choices.is-focused .choices__inner, .choices.is-open .choices__inner { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+    .choices[data-type*=select-multiple] .choices__input { margin: 0 0 4px; padding: 4px 2px; background: transparent; font-size: 14px; }
+    .choices__placeholder { opacity: 1; color: var(--placeholder); }
+    .choices__list--multiple .choices__item {
+      margin: 0 6px 4px 0; padding: 4px 10px;
+      border: 1px solid #bcd0ff; border-radius: 999px;
+      background: var(--primary-50); color: var(--primary-600);
+      font-size: 12.5px; font-weight: 600;
+    }
+    .choices__list--multiple .choices__item.is-highlighted { background: var(--primary-100); border-color: #9fbcff; }
+    .choices[data-type*=select-multiple] .choices__button, .choices[data-type*=text] .choices__button { border-left: 1px solid #bcd0ff; opacity: .7; }
+    .choices__list--dropdown, .choices__list[aria-expanded] {
+      border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+      box-shadow: var(--shadow); z-index: 20;
+    }
+    .choices__list--dropdown .choices__item { font-size: 14px; padding: 10px 12px; }
+    .choices__list--dropdown .choices__item--selectable.is-highlighted, .choices__list[aria-expanded] .choices__item--selectable.is-highlighted { background: var(--primary-50); }
+    .is-open .choices__list--dropdown { border-color: var(--primary); }
+
+    /* =====================================================================
+       Painel: tabela
+       ===================================================================== */
+    .table-card { overflow: hidden; }
+    .table-card .card-head { align-items: center; }
+    .count-badge {
+      display: inline-flex; align-items: center; margin-left: 10px; padding: 3px 10px;
+      border-radius: 999px; background: var(--primary-50); color: var(--primary-600);
+      font-size: 12.5px; font-weight: 600; vertical-align: middle;
+    }
+    .tools-bar { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; padding: 12px 22px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+    .tools-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .tools-label { margin-right: 4px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); }
+
+    #duplicadosContainer {
+      display: none;
+      margin: 16px 22px 0; padding: 14px 18px;
+      max-height: 260px; overflow-y: auto;
+      border: 1px solid #fde68a; border-radius: var(--radius-md); background: #fffbeb;
+    }
+    #duplicadosContainer h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; font-weight: 650; color: var(--warning); }
+    #duplicadosContainer h3::before { content: '\f071'; font-family: 'Font Awesome 6 Free'; font-weight: 900; font-size: 13px; }
+    #listaDuplicados li { padding: 6px 0; border-top: 1px dashed #fde68a; font-size: 13px; color: #78350f; }
+    #listaDuplicados li:first-child { border-top: 0; }
+
+    .empty-state { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 64px 24px 72px; text-align: center; }
+    .empty-state .empty-icon { width: 64px; height: 64px; display: grid; place-items: center; margin-bottom: 8px; border-radius: 18px; background: var(--primary-50); color: var(--primary); font-size: 26px; }
+    .empty-state h3 { font-size: 16px; font-weight: 650; }
+    .empty-state p { max-width: 420px; color: var(--text-3); font-size: 13.5px; }
+    .table-card:has(#fichasContainer[style*="block"]) .empty-state { display: none; }
+
+    #fichasContainer { display: none; overflow-x: auto; }
+    #fichasTabela { width: 100%; border-collapse: collapse; }
+    #fichasTabela thead th {
+      position: sticky; top: 0;
+      padding: 12px 14px; text-align: left; white-space: nowrap;
+      background: var(--surface-2); border-bottom: 1px solid var(--border);
+      font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3);
+    }
+    #fichasTabela tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: middle; }
+    #fichasTabela tbody tr { transition: background .12s; }
+    #fichasTabela tbody tr:last-child td { border-bottom: 0; }
+    #fichasTabela tbody tr:hover { background: #f7f9ff; }
+    #fichasTabela td:first-child { min-width: 230px; }
+    #fichasTabela td.mono { font-variant-numeric: tabular-nums; color: var(--text-2); white-space: nowrap; }
+    #fichasTabela td.col-actions, #fichasTabela th:last-child { text-align: right; white-space: nowrap; }
+
+    .person { display: flex; align-items: center; gap: 12px; font-weight: 600; }
+    .person::before {
+      content: attr(data-i);
+      width: 34px; height: 34px; flex: none; display: grid; place-items: center;
+      border-radius: 50%; background: var(--primary-50); color: var(--primary);
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+    }
+
+    .badge { display: inline-block; margin: 0 4px 3px 0; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: #eef1f6; color: var(--text-2); }
+    .badge.enchente { background: #dbeafe; color: #1d4ed8; }
+    .badge.estiagem { background: var(--warning-bg); color: var(--warning); }
+    .badge.incendio { background: var(--danger-bg); color: #b91c1c; }
+
+    #fichasTabela td button {
+      width: 34px; height: 34px; margin: 0 0 0 4px; padding: 0;
+      display: inline-grid; place-items: center;
+      border: 1px solid transparent; border-radius: 9px;
+      background: transparent; color: var(--text-3); font-size: 14px; cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    #fichasTabela td button:hover { border-color: var(--border-strong); background: var(--surface); }
+    #fichasTabela td button.visualizar:hover { color: var(--primary); }
+    #fichasTabela td button.editar:hover { color: #0f766e; }
+    #fichasTabela td button.excluir:hover { color: var(--danger); background: var(--danger-bg); border-color: #fecaca; }
+    #fichasTabela td button:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+    #fichasTabela tbody tr.highlight-duplicate { background: #fff7ed; }
+    #fichasTabela tbody tr.highlight-duplicate:hover { background: #ffefdb; }
+    #fichasTabela tbody tr.highlight-duplicate td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+
+    /* =====================================================================
+       Modais
+       ===================================================================== */
+    .mdl-reg, .mdl-com {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      align-items: center; justify-content: center; padding: 24px;
+      background: rgba(11, 27, 51, .55); backdrop-filter: blur(4px);
+    }
+    .mdl-reg-content, .mdl-com-content {
+      display: flex; flex-direction: column;
+      width: 100%; max-width: 760px; max-height: calc(100vh - 48px);
+      overflow: hidden;
+      border-radius: 18px; background: var(--surface);
+      box-shadow: 0 30px 80px -20px rgba(11, 27, 51, .55);
+      animation: pop .2s ease;
+    }
+    .mdl-com-content { max-width: 560px; }
+    #viewModal .mdl-reg-content { max-width: 680px; }
+    @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+
+    .mdl-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 22px 26px 16px; border-bottom: 1px solid var(--border); }
+    .mdl-head h2, .mdl-reg-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+    .mdl-head p { margin-top: 2px; font-size: 13px; color: var(--text-3); }
+    .mdl-body { padding: 22px 26px; overflow-y: auto; }
+    .mdl-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 26px; border-top: 1px solid var(--border); background: var(--surface-2); }
+    #editForm { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    .form-section-title { grid-column: 1 / -1; margin-top: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-3); }
+    .form-section-title:first-child { margin-top: 0; }
+    .field small { display: block; margin-top: 6px; font-size: 12.5px; font-weight: 500; color: var(--text-3); }
+
+    #viewContent { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; font-size: 14px; color: var(--text); }
+    #viewContent p { display: flex; flex-direction: column; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
+    #viewContent strong { font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text-3); }
+
+    .comunidade-lista { padding: 8px 14px 14px; overflow-y: auto; }
+    .comunidade-item { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-radius: 10px; transition: background .12s; }
+    .comunidade-item:hover { background: var(--surface-2); }
+    .comunidade-item span { flex: 1; font-size: 14px; font-weight: 500; }
+    .comunidade-item button {
+      width: 34px; height: 34px; display: grid; place-items: center;
+      border: 0; border-radius: 9px; background: transparent; cursor: pointer;
+      transition: background .15s;
+    }
+    .comunidade-item .btn-editar:hover { background: var(--primary-50); }
+    .comunidade-item .btn-excluir:hover { background: var(--danger-bg); }
+
+    /* =====================================================================
+       Carregamento
+       ===================================================================== */
+    #loadingSpinner {
+      display: none; position: fixed; z-index: 1100; top: 50%; left: 50%;
+      width: 46px; height: 46px; margin: -23px 0 0 -23px;
+      border: 4px solid rgba(37, 99, 235, .18); border-top-color: var(--primary); border-radius: 50%;
+      animation: girar .8s linear infinite;
+    }
+    .loading-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1100;
+      align-items: center; justify-content: center;
+      background: rgba(11, 27, 51, .45); backdrop-filter: blur(3px);
+    }
+    .spinner {
+      width: 46px; height: 46px;
+      border: 4px solid rgba(255, 255, 255, .3); border-top-color: #fff; border-radius: 50%;
+      animation: girar .8s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+
+    /* =====================================================================
+       Responsivo (o foco é desktop; abaixo disso a barra lateral vira topo)
+       ===================================================================== */
+    @media (max-width: 1280px) {
+      .form-layout { grid-template-columns: minmax(0, 1fr); }
+      .form-col.side { position: static; }
+    }
+    @media (max-width: 1100px) {
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .view { padding: 28px 28px 48px; }
+    }
+    @media (max-width: 860px) {
+      .sidebar {
+        position: sticky; top: 0; inset: auto; width: 100%; height: auto;
+        flex-direction: row; align-items: center; gap: 8px; padding: 10px 14px;
       }
-#viewCadastro h1 {
-        font-size: 1.5rem;
-      }
-#viewCadastro .localidade-container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-#viewCadastro .localidade-container button {
-        width: 100%;
-      }
-#viewCadastro .mdl-com-content {
-        width: 90%;
-        padding: 1.5rem;
-      }
-}
+      .brand { padding: 0 8px 0 0; }
+      .brand small, .nav-label, .user-info { display: none; }
+      .nav { flex-direction: row; flex: 1; }
+      .nav-item { width: auto; padding: 8px 12px; }
+      .nav-item.active::before { display: none; }
+      .sidebar-footer { margin: 0; padding: 0; border: 0; display: flex; align-items: center; }
+      .user { padding: 0 6px; }
+      .nav-item.logout span { display: none; }
+      .main-area { margin-left: 0; }
+      .view { padding: 20px 16px 40px; }
+      .page-header { flex-direction: column; align-items: stretch; }
+      .form-grid, #viewContent { grid-template-columns: 1fr; }
+      .kpis { grid-template-columns: 1fr; }
+      .filter { min-width: 100%; }
+      .filters { width: 100%; }
+    }
   </style>
 </head>
 <body>
   <!-- Autenticação: sem login, volta para o login -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfigAuth = {
       apiKey: "AIzaSyBCcGYGrMU67_lMh3LHyGfcXGGNpJXPRdY",
@@ -644,11 +537,22 @@
       appId: "1:618228690979:web:db91659f8211b022c24196"
     };
     const auth = getAuth(initializeApp(firebaseConfigAuth));
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "login.html";
+        return;
+      }
+      // Identificação do usuário na barra lateral
+      const nome = user.displayName || (user.email ? user.email.split("@")[0] : "Usuário");
+      document.getElementById("userName").textContent = nome;
+      document.getElementById("userEmail").textContent = user.email || "";
+      const avatar = document.getElementById("userAvatar");
+      if (user.photoURL) {
+        avatar.style.backgroundImage = `url("${user.photoURL}")`;
+        avatar.textContent = "";
+      } else {
+        avatar.textContent = nome.trim().charAt(0).toUpperCase();
       }
     });
 
@@ -662,244 +566,473 @@
     };
   </script>
 
-  <!-- Tela inicial: lista de famílias -->
-  <div id="viewRegistros">
-  <div id="loadingSpinner"></div>
-  <header>
-    <h1>Famílias Cadastradas</h1>
-  </header>
-  <main>
-    <div class="fichas-section">
-      <div class="controls">
-        <span id="contador">Total de fichas: 0</span>
-        <select id="motivoAuxilioSelect" onchange="filtrarPorMotivoEComunidade()">
-          <option value="todos">Todos os Motivos</option>
-          <option value="Enchente">Enchente</option>
-          <option value="Estiagem">Estiagem</option>
-          <option value="Incêndio">Incêndio</option>
-        </select>
-        <select id="comunidadeSelect" onchange="filtrarPorMotivoEComunidade()">
-          <option value="todas">Todas as Comunidades</option>
-        </select>
-        <button onclick="gerarPDF()">Gerar PDF</button>
-        <button onclick="gerarReciboPDF()">Gerar Recibo PDF</button>
-        <button onclick="gerarCronogramaPDF()">Cronograma</button>
-        
-        <!-- Botões de Exportar/Importar JSON -->
-        <button onclick="exportarJSON()">Exportar JSON</button>
-        <button onclick="document.getElementById('jsonFileInput').click()">Importar JSON</button>
-        <input type="file" id="jsonFileInput" accept=".json" style="display: none" onchange="importarJSON(event)">
-        
-        <button onclick="mostrarView('cadastro')">Cadastro de Familias</button>
-        <button onclick="toggleDuplicados()">Ver Duplicados</button>
-        <button id="atualizarButton" class="atualizar" onclick="atualizarDados()">Atualizar</button>
-        <button class="sair" onclick="sair()">Sair</button>
-      </div>
-
-      <div id="duplicadosContainer">
-        <h3>Lista de Duplicados</h3>
-        <ul id="listaDuplicados"></ul>
-      </div>
-
-      <div class="search-container">
-        <input type="text" id="buscaInput" class="uppercase" placeholder="Buscar ficha (mínimo 4 caracteres)..." oninput="aplicarMascaraBusca(this); if(this.value.length >= 5) buscarFicha();" onkeyup="if(event.key === 'Enter') buscarFicha();" />
-        <button class="search-btn" onclick="buscarFicha()" title="Buscar"><i class="fas fa-search"></i></button>
-        <button class="clear-search" onclick="limparBusca()" title="Limpar"><i class="fas fa-broom"></i></button>
-      </div>
-      
-      <div id="fichasContainer">
-        <table id="fichasTabela">
-          <thead>
-            <tr>
-              <th>Líder de Família</th>
-              <th>CPF do Líder</th>
-              <th>Nome do(a) Cônjuge</th>
-              <th>CPF do(a) Cônjuge</th>
-              <th>Comunidade</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Modal para Edição -->
-    <div id="editModal" class="mdl-reg">      
-      <div class="mdl-reg-content">      
-        <h2>Editar Ficha</h2>      
-        <form id="editForm">      
-          <label for="editLiderFamilia">Líder de Família</label>      
-          <input type="text" id="editLiderFamilia" name="liderFamilia" class="uppercase" />  
-
-          <label for="editCpfLider">CPF do Líder</label>      
-          <input type="text" id="editCpfLider" name="cpfLider" inputmode="numeric" maxlength="14" />      
-          <small id="cpfLiderStatus"></small>    
-
-          <label for="editNumeroContato">Telefone de Contato</label>  
-          <input type="text" id="editNumeroContato" name="numeroContato" inputmode="numeric" maxlength="15" />  
-
-          <label for="editDataNascimentoLider">Data de Nascimento do Líder</label>
-          <input type="text" id="editDataNascimentoLider" name="dataNascimentoLider" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" />
-          <small id="idadeLider" style="display:block; margin-top:4px; color:#555;"></small>
-
-          <label for="editTituloEleitorLider">Título de Eleitor do Líder</label>
-          <input type="text" id="editTituloEleitorLider" name="tituloEleitorLider" inputmode="numeric" maxlength="14" />
-
-          <label for="editZonaLider">Zona do Líder</label>
-          <input type="text" id="editZonaLider" name="zonaLider" inputmode="numeric" maxlength="4" />
-
-          <label for="editSecaoLider">Seção do Líder</label>
-          <input type="text" id="editSecaoLider" name="secaoLider" inputmode="numeric" maxlength="3" />
-          <small id="secaoLiderStatus"></small>
-
-          <label for="editNomeEsposa">Nome do(a) Cônjuge</label>
-          <input type="text" id="editNomeEsposa" name="nomeEsposa" class="uppercase" />
-
-          <label for="editCpfEsposa">CPF do(a) Cônjuge</label>
-          <input type="text" id="editCpfEsposa" name="cpfEsposa" inputmode="numeric" maxlength="14" />
-          <small id="cpfEsposaStatus"></small>
-
-          <label for="editTituloEleitorEsposa">Título de Eleitor do(a) Cônjuge</label>
-          <input type="text" id="editTituloEleitorEsposa" name="tituloEleitorEsposa" inputmode="numeric" maxlength="14" />
-
-          <label for="editZonaEsposa">Zona do(a) Cônjuge</label>
-          <input type="text" id="editZonaEsposa" name="zonaEsposa" inputmode="numeric" maxlength="4" />
-
-          <label for="editSecaoEsposa">Seção do(a) Cônjuge</label>
-          <input type="text" id="editSecaoEsposa" name="secaoEsposa" inputmode="numeric" maxlength="3" />
-          <small id="secaoEsposaStatus"></small>
-
-          <label for="editFilhos">Filhos</label>
-          <input type="text" id="editFilhos" name="filhos" inputmode="numeric" maxlength="2" />
-
-          <label for="editLocalidade">Localidade</label>
-          <input type="text" id="editLocalidade" name="localidade" />
-
-          <label for="editMotivoAuxilio">Motivo do Auxílio</label>
-          <textarea id="editMotivoAuxilio" name="motivoAuxilio"></textarea>
-
-          <input type="hidden" id="editId" name="id" />      
-          <button type="submit">Salvar</button>
-          <button type="button" class="cancelar" onclick="fecharModal()">Cancelar</button>
-        </form>
-      </div>      
-    </div>  
-
-    <!-- Modal para Visualização -->
-    <div id="viewModal" class="mdl-reg" onclick="fecharViewModal(event)">  
-      <div class="mdl-reg-content" onclick="event.stopPropagation()">  
-        <h2 class="mdl-reg-title">Detalhes da Ficha</h2>  
-        <div id="viewContent">Carregando...</div>  
-        <button type="button" class="close-btn" onclick="fecharViewModal()">Fechar</button>  
-      </div>  
-    </div>
-
-    </main>
-
-  </div>
-
-  <!-- Tela de cadastro (formulário) -->
-  <div id="viewCadastro" class="oculto">
-  <header>
-    <h1>Cadastro de Famílias</h1>
-  </header>
-  <main>
-    <form class="row g-3">
-      <div class="col-md-6">
-        <label for="liderFamilia" class="form-label">Líder de Família *</label>
-        <input type="text" class="form-control" id="liderFamilia" placeholder="Nome do Líder" required />
-      </div>
-      <div class="col-md-6">
-        <label for="cpfLider" class="form-label">CPF do Líder *</label>
-        <input type="text" class="form-control" id="cpfLider" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraCPF(this)" required />
-        <div id="cpfLiderFeedback" class="cpf-feedback"></div>
-      </div>
-      <div class="col-md-6">
-        <label for="numeroContato" class="form-label">Telefone de Contato</label>
-        <input type="text" class="form-control" id="numeroContato" placeholder="(00) 00000-0000" maxlength="15" inputmode="numeric" pattern="\d*" oninput="mascaraTelefone(this)" />
-      </div>
-      <div class="col-md-6">
-        <label for="dataNascimentoLider" class="form-label">Data de Nascimento</label>
-        <input type="text" class="form-control" id="dataNascimentoLider" placeholder="dd/mm/aaaa" maxlength="10" inputmode="numeric" oninput="mascaraData(this); calcularIdade(this)" />
-        <div id="idadeFeedback" class="idade-feedback"></div>
-      </div>
-      <div class="col-md-6">
-        <label for="tituloEleitorLider" class="form-label">Título de Eleitor do Líder</label>
-        <input type="text" class="form-control" id="tituloEleitorLider" placeholder="0000 0000 0000" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraTitulo(this)" />
-      </div>
-      <div class="col-md-6">
-        <label for="zonaLider" class="form-label">Zona do Líder</label>
-        <input type="text" class="form-control" id="zonaLider" placeholder="Ex: 0023" maxlength="4" inputmode="numeric" pattern="\d*" />
-      </div>
-      <div class="col-md-6">
-        <label for="secaoLider" class="form-label">Seção do Líder</label>
-        <input type="text" class="form-control" id="secaoLider" placeholder="Seção" maxlength="3" inputmode="numeric" pattern="\d*" />
-      </div>
-      <div class="col-md-6">
-        <label for="nomeEsposa" class="form-label">Nome do(a) Cônjuge</label>
-        <input type="text" class="form-control" id="nomeEsposa" placeholder="Nome do(a) Cônjuge" />
-      </div>
-      <div class="col-md-6">
-        <label for="cpfEsposa" class="form-label">CPF do(a) Cônjuge</label>
-        <input type="text" class="form-control" id="cpfEsposa" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraCPF(this)" />
-        <div id="cpfEsposaFeedback" class="cpf-feedback"></div>
-      </div>
-      <div class="col-md-6">
-        <label for="tituloEleitorEsposa" class="form-label">Título de Eleitor do(a) Cônjuge</label>
-        <input type="text" class="form-control" id="tituloEleitorEsposa" placeholder="0000 0000 0000" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraTitulo(this)" />
-      </div>
-      <div class="col-md-6">
-        <label for="zonaEsposa" class="form-label">Zona do(a) Cônjuge</label>
-        <input type="text" class="form-control" id="zonaEsposa" placeholder="Ex: 0023" maxlength="4" inputmode="numeric" pattern="\d*" />
-      </div>
-      <div class="col-md-6">
-        <label for="secaoEsposa" class="form-label">Seção do(a) Cônjuge</label>
-        <input type="text" class="form-control" id="secaoEsposa" placeholder="Seção" maxlength="3" inputmode="numeric" pattern="\d*" />
-      </div>
-      <div class="col-md-6">
-        <label for="filhos" class="form-label">Filhos</label>
-        <input type="text" class="form-control" id="filhos" placeholder="Número de filhos" maxlength="2" inputmode="numeric" pattern="\d*" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2)" />
-      </div>
-      <div class="col-12">
-        <label for="localidadeSelect" class="form-label">Comunidade *</label>
-        <input type="text" class="form-control mb-2" id="buscaComunidade" placeholder="Buscar comunidade..." />
-        <div class="localidade-container">
-          <select id="localidadeSelect" class="form-select" required>
-            <option value="">Selecione uma comunidade</option>
-          </select>
-          <input type="text" class="form-control" id="novaLocalidade" placeholder="Nova comunidade" />
-          <button type="button" class="btn btn-primary" onclick="adicionarLocalidade()">Adicionar</button>
+  <div class="app">
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.2 8.2 8 9 4.8-.8 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <div>
+          <strong>SEMPDEC</strong>
+          <small>Defesa Civil</small>
         </div>
       </div>
-      <div class="col-12">
-        <label for="motivoAuxilio" class="form-label">Motivo do Auxílio *</label>
-        <select id="motivoAuxilio" class="form-select" multiple required>
-          <option value="Estiagem">Estiagem</option>
-          <option value="Enchente">Enchente</option>
-          <option value="Incêndio">Incêndio</option>
-        </select>
+
+      <nav class="nav" aria-label="Navegação principal">
+        <div class="nav-label">Gestão</div>
+        <button type="button" class="nav-item active" data-view="registros" onclick="mostrarView('registros')">
+          <i class="fas fa-table-columns"></i><span>Painel de Cadastros</span>
+        </button>
+        <button type="button" class="nav-item" data-view="cadastro" onclick="mostrarView('cadastro')">
+          <i class="fas fa-user-plus"></i><span>Novo Cadastro</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user">
+          <span class="user-avatar" id="userAvatar">U</span>
+          <div class="user-info">
+            <strong id="userName">Usuário</strong>
+            <small id="userEmail"></small>
+          </div>
+        </div>
+        <button type="button" class="nav-item logout" onclick="sair()">
+          <i class="fas fa-right-from-bracket"></i><span>Sair</span>
+        </button>
       </div>
-      <div class="col-12 d-flex justify-content-center gap-2 mt-3">
-        <button type="button" class="btn btn-primary" onclick="adicionarFicha()">Salvar</button>
-        <button type="button" class="btn btn-secondary" onclick="mostrarView('registros')">Registros</button>
-        <button type="button" class="btn btn-warning" onclick="abrirModalComunidades()">Gerenciar Comunidades</button>
+    </aside>
+
+    <div class="main-area">
+
+      <!-- ===================== Painel de Cadastros (lista de famílias) ===================== -->
+      <div id="viewRegistros" class="view">
+        <div id="loadingSpinner"></div>
+
+        <header class="page-header">
+          <div>
+            <div class="breadcrumb">Gestão / <b>Famílias</b></div>
+            <h1>Painel de Cadastros</h1>
+            <p class="subtitle">Consulte, filtre e gerencie as famílias cadastradas.</p>
+          </div>
+          <div class="page-actions">
+            <button id="atualizarButton" class="btn btn-secondary atualizar" onclick="atualizarDados()"><i class="fas fa-rotate"></i> Atualizar</button>
+            <button class="btn btn-primary" onclick="mostrarView('cadastro')"><i class="fas fa-plus"></i> Novo cadastro</button>
+          </div>
+        </header>
+
+        <section class="kpis" aria-label="Indicadores">
+          <article class="card kpi">
+            <div class="kpi-icon blue"><i class="fas fa-users"></i></div>
+            <div>
+              <span class="kpi-label">Famílias cadastradas</span>
+              <strong class="kpi-value" id="kpiTotal">0</strong>
+              <span class="kpi-sub">&nbsp;</span>
+            </div>
+          </article>
+          <article class="card kpi">
+            <div class="kpi-icon green"><i class="fas fa-location-dot"></i></div>
+            <div>
+              <span class="kpi-label">Comunidades atendidas</span>
+              <strong class="kpi-value" id="kpiComunidades">0</strong>
+              <span class="kpi-sub">&nbsp;</span>
+            </div>
+          </article>
+          <article class="card kpi">
+            <div class="kpi-icon amber"><i class="fas fa-triangle-exclamation"></i></div>
+            <div>
+              <span class="kpi-label">Possíveis duplicidades</span>
+              <strong class="kpi-value" id="kpiDuplicados">0</strong>
+              <span class="kpi-sub">&nbsp;</span>
+            </div>
+          </article>
+          <article class="card kpi">
+            <div class="kpi-icon violet"><i class="fas fa-life-ring"></i></div>
+            <div>
+              <span class="kpi-label">Motivo mais frequente</span>
+              <strong class="kpi-value text" id="kpiMotivo">—</strong>
+              <span class="kpi-sub" id="kpiMotivoSub">&nbsp;</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="card toolbar" aria-label="Busca e filtros">
+          <div class="search-container">
+            <div class="search-field">
+              <i class="fas fa-magnifying-glass"></i>
+              <input type="text" id="buscaInput" class="form-control uppercase" placeholder="Buscar ficha por nome ou CPF (mínimo 4 caracteres)..." oninput="aplicarMascaraBusca(this); if(this.value.length >= 5) buscarFicha();" onkeyup="if(event.key === 'Enter') buscarFicha();" />
+            </div>
+            <button class="btn btn-primary search-btn" onclick="buscarFicha()" title="Buscar"><i class="fas fa-magnifying-glass"></i> Buscar</button>
+            <button class="btn btn-secondary clear-search" onclick="limparBusca()" title="Limpar"><i class="fas fa-broom"></i> Limpar</button>
+          </div>
+          <div class="filters">
+            <div class="filter">
+              <label class="form-label" for="motivoAuxilioSelect">Motivo do auxílio</label>
+              <select id="motivoAuxilioSelect" class="form-select" onchange="filtrarPorMotivoEComunidade()">
+                <option value="todos">Todos os Motivos</option>
+                <option value="Enchente">Enchente</option>
+                <option value="Estiagem">Estiagem</option>
+                <option value="Incêndio">Incêndio</option>
+              </select>
+            </div>
+            <div class="filter">
+              <label class="form-label" for="comunidadeSelect">Comunidade</label>
+              <select id="comunidadeSelect" class="form-select" onchange="filtrarPorMotivoEComunidade()">
+                <option value="todas">Todas as Comunidades</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="card table-card">
+          <div class="card-head">
+            <div>
+              <h2 style="display:inline">Famílias</h2>
+              <span id="contador" class="count-badge">Total de fichas: 0</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="toggleDuplicados()"><i class="fas fa-clone"></i> Ver Duplicados</button>
+          </div>
+
+          <div class="tools-bar">
+            <div class="tools-group">
+              <span class="tools-label">Relatórios</span>
+              <button class="btn btn-secondary btn-sm" onclick="gerarPDF()"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
+              <button class="btn btn-secondary btn-sm" onclick="gerarReciboPDF()"><i class="fas fa-receipt"></i> Gerar Recibo PDF</button>
+              <button class="btn btn-secondary btn-sm" onclick="gerarCronogramaPDF()"><i class="fas fa-calendar-days"></i> Cronograma</button>
+            </div>
+            <div class="tools-group">
+              <span class="tools-label">Dados</span>
+              <!-- Botões de Exportar/Importar JSON -->
+              <button class="btn btn-secondary btn-sm" onclick="exportarJSON()"><i class="fas fa-file-export"></i> Exportar JSON</button>
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('jsonFileInput').click()"><i class="fas fa-file-import"></i> Importar JSON</button>
+              <input type="file" id="jsonFileInput" accept=".json" style="display: none" onchange="importarJSON(event)">
+            </div>
+          </div>
+
+          <div id="duplicadosContainer">
+            <h3>Lista de Duplicados</h3>
+            <ul id="listaDuplicados"></ul>
+          </div>
+
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-magnifying-glass"></i></div>
+            <h3>Nenhuma consulta ativa</h3>
+            <p>Digite ao menos 4 caracteres na busca ou selecione um motivo ou uma comunidade para listar as famílias.</p>
+          </div>
+
+          <div id="fichasContainer">
+            <table id="fichasTabela">
+              <thead>
+                <tr>
+                  <th>Líder de Família</th>
+                  <th>CPF do Líder</th>
+                  <th>Nome do(a) Cônjuge</th>
+                  <th>CPF do(a) Cônjuge</th>
+                  <th>Comunidade</th>
+                  <th>Motivo</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Modal para Edição -->
+        <div id="editModal" class="mdl-reg">
+          <div class="mdl-reg-content">
+            <div class="mdl-head">
+              <div>
+                <h2>Editar Ficha</h2>
+                <p>Atualize os dados da família e salve as alterações.</p>
+              </div>
+              <button type="button" class="icon-btn" onclick="fecharModal()" aria-label="Fechar"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="editForm">
+              <div class="mdl-body">
+                <div class="form-grid">
+                  <h3 class="form-section-title">Líder da família</h3>
+
+                  <div class="field span-2">
+                    <label class="form-label" for="editLiderFamilia">Líder de Família</label>
+                    <input type="text" id="editLiderFamilia" name="liderFamilia" class="form-control uppercase" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editCpfLider">CPF do Líder</label>
+                    <input type="text" id="editCpfLider" name="cpfLider" class="form-control" inputmode="numeric" maxlength="14" />
+                    <small id="cpfLiderStatus"></small>
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editNumeroContato">Telefone de Contato</label>
+                    <input type="text" id="editNumeroContato" name="numeroContato" class="form-control" inputmode="numeric" maxlength="15" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editDataNascimentoLider">Data de Nascimento do Líder</label>
+                    <input type="text" id="editDataNascimentoLider" name="dataNascimentoLider" class="form-control" placeholder="DD/MM/AAAA" maxlength="10" inputmode="numeric" />
+                    <small id="idadeLider"></small>
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editTituloEleitorLider">Título de Eleitor do Líder</label>
+                    <input type="text" id="editTituloEleitorLider" name="tituloEleitorLider" class="form-control" inputmode="numeric" maxlength="14" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editZonaLider">Zona do Líder</label>
+                    <input type="text" id="editZonaLider" name="zonaLider" class="form-control" inputmode="numeric" maxlength="4" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editSecaoLider">Seção do Líder</label>
+                    <input type="text" id="editSecaoLider" name="secaoLider" class="form-control" inputmode="numeric" maxlength="3" />
+                    <small id="secaoLiderStatus"></small>
+                  </div>
+
+                  <h3 class="form-section-title">Cônjuge</h3>
+
+                  <div class="field span-2">
+                    <label class="form-label" for="editNomeEsposa">Nome do(a) Cônjuge</label>
+                    <input type="text" id="editNomeEsposa" name="nomeEsposa" class="form-control uppercase" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editCpfEsposa">CPF do(a) Cônjuge</label>
+                    <input type="text" id="editCpfEsposa" name="cpfEsposa" class="form-control" inputmode="numeric" maxlength="14" />
+                    <small id="cpfEsposaStatus"></small>
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editTituloEleitorEsposa">Título de Eleitor do(a) Cônjuge</label>
+                    <input type="text" id="editTituloEleitorEsposa" name="tituloEleitorEsposa" class="form-control" inputmode="numeric" maxlength="14" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editZonaEsposa">Zona do(a) Cônjuge</label>
+                    <input type="text" id="editZonaEsposa" name="zonaEsposa" class="form-control" inputmode="numeric" maxlength="4" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editSecaoEsposa">Seção do(a) Cônjuge</label>
+                    <input type="text" id="editSecaoEsposa" name="secaoEsposa" class="form-control" inputmode="numeric" maxlength="3" />
+                    <small id="secaoEsposaStatus"></small>
+                  </div>
+
+                  <h3 class="form-section-title">Família e auxílio</h3>
+
+                  <div class="field">
+                    <label class="form-label" for="editFilhos">Filhos</label>
+                    <input type="text" id="editFilhos" name="filhos" class="form-control" inputmode="numeric" maxlength="2" />
+                  </div>
+
+                  <div class="field">
+                    <label class="form-label" for="editLocalidade">Localidade</label>
+                    <input type="text" id="editLocalidade" name="localidade" class="form-control" />
+                  </div>
+
+                  <div class="field span-2">
+                    <label class="form-label" for="editMotivoAuxilio">Motivo do Auxílio <span class="opt">(separe por vírgula)</span></label>
+                    <textarea id="editMotivoAuxilio" name="motivoAuxilio" class="form-control"></textarea>
+                  </div>
+                </div>
+                <input type="hidden" id="editId" name="id" />
+              </div>
+              <div class="mdl-foot">
+                <button type="button" class="btn btn-secondary cancelar" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Salvar alterações</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Modal para Visualização -->
+        <div id="viewModal" class="mdl-reg" onclick="fecharViewModal(event)">
+          <div class="mdl-reg-content" onclick="event.stopPropagation()">
+            <div class="mdl-head">
+              <div>
+                <h2 class="mdl-reg-title">Detalhes da Ficha</h2>
+                <p>Informações completas da família cadastrada.</p>
+              </div>
+              <button type="button" class="icon-btn" onclick="fecharViewModal()" aria-label="Fechar"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div class="mdl-body">
+              <div id="viewContent">Carregando...</div>
+            </div>
+            <div class="mdl-foot">
+              <button type="button" class="btn btn-secondary close-btn" onclick="fecharViewModal()">Fechar</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </form>
-  </main>
-  <!-- Modal para Gerenciar Comunidades -->
-  <div class="mdl-com" id="modalComunidades">
-    <div class="mdl-com-content">
-      <button class="close-modal" onclick="fecharModalComunidades()">×</button>
-      <h2>Gerenciar Comunidades</h2>
-      <ul class="comunidade-lista" id="comunidadeLista"></ul>
+
+      <!-- ===================== Cadastro de Famílias (formulário) ===================== -->
+      <div id="viewCadastro" class="view oculto">
+        <header class="page-header">
+          <div>
+            <div class="breadcrumb">Gestão / Famílias / <b>Novo cadastro</b></div>
+            <h1>Cadastro de Famílias</h1>
+            <p class="subtitle">Preencha os dados da família. Campos marcados com <span style="color:var(--danger)">*</span> são obrigatórios.</p>
+          </div>
+          <div class="page-actions">
+            <button type="button" class="btn btn-secondary" onclick="mostrarView('registros')"><i class="fas fa-table-list"></i> Registros</button>
+          </div>
+        </header>
+
+        <form class="form-layout" onsubmit="return false">
+          <!-- Coluna principal -->
+          <div class="form-col">
+            <section class="card">
+              <div class="section-head">
+                <div class="section-icon"><i class="fas fa-user"></i></div>
+                <div>
+                  <h2>Líder da família</h2>
+                  <p>Dados pessoais e eleitorais do responsável</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="span-2">
+                    <label for="liderFamilia" class="form-label">Líder de Família <span class="req">*</span></label>
+                    <input type="text" class="form-control" id="liderFamilia" placeholder="Nome do Líder" required />
+                  </div>
+                  <div>
+                    <label for="cpfLider" class="form-label">CPF do Líder <span class="req">*</span></label>
+                    <input type="text" class="form-control" id="cpfLider" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraCPF(this)" required />
+                    <div id="cpfLiderFeedback" class="cpf-feedback"></div>
+                  </div>
+                  <div>
+                    <label for="numeroContato" class="form-label">Telefone de Contato</label>
+                    <input type="text" class="form-control" id="numeroContato" placeholder="(00) 00000-0000" maxlength="15" inputmode="numeric" pattern="\d*" oninput="mascaraTelefone(this)" />
+                  </div>
+                  <div>
+                    <label for="dataNascimentoLider" class="form-label">Data de Nascimento</label>
+                    <input type="text" class="form-control" id="dataNascimentoLider" placeholder="dd/mm/aaaa" maxlength="10" inputmode="numeric" oninput="mascaraData(this); calcularIdade(this)" />
+                    <div id="idadeFeedback" class="idade-feedback"></div>
+                  </div>
+                  <div>
+                    <label for="tituloEleitorLider" class="form-label">Título de Eleitor do Líder</label>
+                    <input type="text" class="form-control" id="tituloEleitorLider" placeholder="0000 0000 0000" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraTitulo(this)" />
+                  </div>
+                  <div>
+                    <label for="zonaLider" class="form-label">Zona do Líder</label>
+                    <input type="text" class="form-control" id="zonaLider" placeholder="Ex: 0023" maxlength="4" inputmode="numeric" pattern="\d*" />
+                  </div>
+                  <div>
+                    <label for="secaoLider" class="form-label">Seção do Líder</label>
+                    <input type="text" class="form-control" id="secaoLider" placeholder="Seção" maxlength="3" inputmode="numeric" pattern="\d*" />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card">
+              <div class="section-head">
+                <div class="section-icon violet"><i class="fas fa-user-group"></i></div>
+                <div>
+                  <h2>Cônjuge</h2>
+                  <p>Preencha caso a família tenha cônjuge</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="span-2">
+                    <label for="nomeEsposa" class="form-label">Nome do(a) Cônjuge</label>
+                    <input type="text" class="form-control" id="nomeEsposa" placeholder="Nome do(a) Cônjuge" />
+                  </div>
+                  <div>
+                    <label for="cpfEsposa" class="form-label">CPF do(a) Cônjuge</label>
+                    <input type="text" class="form-control" id="cpfEsposa" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraCPF(this)" />
+                    <div id="cpfEsposaFeedback" class="cpf-feedback"></div>
+                  </div>
+                  <div>
+                    <label for="tituloEleitorEsposa" class="form-label">Título de Eleitor do(a) Cônjuge</label>
+                    <input type="text" class="form-control" id="tituloEleitorEsposa" placeholder="0000 0000 0000" maxlength="14" inputmode="numeric" pattern="\d*" oninput="mascaraTitulo(this)" />
+                  </div>
+                  <div>
+                    <label for="zonaEsposa" class="form-label">Zona do(a) Cônjuge</label>
+                    <input type="text" class="form-control" id="zonaEsposa" placeholder="Ex: 0023" maxlength="4" inputmode="numeric" pattern="\d*" />
+                  </div>
+                  <div>
+                    <label for="secaoEsposa" class="form-label">Seção do(a) Cônjuge</label>
+                    <input type="text" class="form-control" id="secaoEsposa" placeholder="Seção" maxlength="3" inputmode="numeric" pattern="\d*" />
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- Coluna lateral -->
+          <div class="form-col side">
+            <section class="card">
+              <div class="section-head">
+                <div class="section-icon amber"><i class="fas fa-house-flood-water"></i></div>
+                <div>
+                  <h2>Família e auxílio</h2>
+                  <p>Localização e motivo do atendimento</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                  <div>
+                    <label for="filhos" class="form-label">Filhos</label>
+                    <input type="text" class="form-control" id="filhos" placeholder="Número de filhos" maxlength="2" inputmode="numeric" pattern="\d*" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0,2)" />
+                  </div>
+                  <div>
+                    <label for="localidadeSelect" class="form-label">Comunidade <span class="req">*</span></label>
+                    <div class="localidade-container">
+                      <input type="text" class="form-control" id="buscaComunidade" placeholder="Buscar comunidade..." />
+                      <select id="localidadeSelect" class="form-select" required>
+                        <option value="">Selecione uma comunidade</option>
+                      </select>
+                      <div class="nova-localidade">
+                        <input type="text" class="form-control" id="novaLocalidade" placeholder="Nova comunidade" />
+                        <button type="button" class="btn btn-secondary" onclick="adicionarLocalidade()"><i class="fas fa-plus"></i> Adicionar</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="motivoAuxilio" class="form-label">Motivo do Auxílio <span class="req">*</span></label>
+                    <select id="motivoAuxilio" class="form-select" multiple required>
+                      <option value="Estiagem">Estiagem</option>
+                      <option value="Enchente">Enchente</option>
+                      <option value="Incêndio">Incêndio</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card actions-card">
+              <button type="button" class="btn btn-primary btn-lg btn-block" id="btnSalvarFicha" onclick="adicionarFicha()"><i class="fas fa-floppy-disk"></i> Salvar cadastro</button>
+              <button type="button" class="btn btn-secondary btn-block" onclick="abrirModalComunidades()"><i class="fas fa-location-dot"></i> Gerenciar Comunidades</button>
+              <div class="tip"><i class="fas fa-circle-info"></i><span>O CPF do líder é validado e verificado contra cadastros existentes antes de salvar.</span></div>
+            </section>
+          </div>
+        </form>
+
+        <!-- Modal para Gerenciar Comunidades -->
+        <div class="mdl-com" id="modalComunidades">
+          <div class="mdl-com-content">
+            <div class="mdl-head">
+              <div>
+                <h2>Gerenciar Comunidades</h2>
+                <p>Edite ou remova as comunidades cadastradas.</p>
+              </div>
+              <button type="button" class="icon-btn close-modal" onclick="fecharModalComunidades()" aria-label="Fechar"><i class="fas fa-xmark"></i></button>
+            </div>
+            <ul class="comunidade-lista" id="comunidadeLista"></ul>
+          </div>
+        </div>
+
+        <!-- Overlay de Carregamento -->
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
     </div>
-  </div>
-  <!-- Overlay de Carregamento -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-  </div>
-  
   </div>
 
   <!-- Máscaras e validações da edição de ficha -->
@@ -1092,6 +1225,9 @@
 const motivoAuxilioChoices = new Choices('#motivoAuxilio', {
           removeItemButton: true,
           placeholderValue: 'Selecione os motivos',
+          itemSelectText: 'Selecionar',
+          noChoicesText: 'Sem opções disponíveis',
+          noResultsText: 'Nenhum resultado',
           searchEnabled: false
         });
       
@@ -1344,14 +1480,14 @@ const firebaseConfig = {
           if (nextElement) {
             nextElement.focus();
           } else {
-            document.querySelector('#viewCadastro .btn-primary').focus();
+            document.getElementById('btnSalvarFicha').focus();
           }
         }
       });
     });
 
     async function adicionarFicha() {
-      const btnSalvar = document.querySelector('#viewCadastro .btn-primary');
+      const btnSalvar = document.getElementById('btnSalvarFicha');
       btnSalvar.disabled = true;
       document.getElementById('loadingOverlay').style.display = 'flex';
 
@@ -1675,25 +1811,36 @@ const firebaseConfig = {
         }
       }
 
+      function motivoBadges(valor) {
+        const lista = Array.isArray(valor) ? valor : (valor ? [valor] : []);
+        if (!lista.length) return '-';
+        return lista.map(m => {
+          const cls = String(m).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, '');
+          return `<span class="badge ${cls}">${m}</span>`;
+        }).join('');
+      }
+
       function adicionarFichasNaTabela(fichas) {
         const tbody = document.querySelector('#fichasTabela tbody');
         tbody.innerHTML = '';
         fichas.forEach(f => {
           const tr = document.createElement('tr');
+          const nomeLider = f.liderFamilia || '-';
           tr.innerHTML = `
-            <td>${f.liderFamilia || '-'}</td>
-            <td>${f.cpfLider || '-'}</td>
+            <td><div class="person" data-i="${String(nomeLider).trim().charAt(0) || '?'}">${nomeLider}</div></td>
+            <td class="mono">${f.cpfLider || '-'}</td>
             <td>${f.nomeEsposa || '-'}</td>
-            <td>${f.cpfEsposa || '-'}</td>
+            <td class="mono">${f.cpfEsposa || '-'}</td>
             <td>${f.localidade || '-'}</td>
-            <td>
-              <button class="visualizar" onclick="abrirModalVisualizar('${f.id}')" aria-label="Visualizar">
+            <td>${motivoBadges(f.motivoAuxilio)}</td>
+            <td class="col-actions">
+              <button class="visualizar" onclick="abrirModalVisualizar('${f.id}')" aria-label="Visualizar" title="Visualizar">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="editar" onclick="abrirModalEditar('${f.id}')" aria-label="Editar">
+              <button class="editar" onclick="abrirModalEditar('${f.id}')" aria-label="Editar" title="Editar">
                 <i class="fas fa-pen"></i>
               </button>
-              <button class="excluir" onclick="excluirFicha('${f.id}')" aria-label="Excluir">
+              <button class="excluir" onclick="excluirFicha('${f.id}')" aria-label="Excluir" title="Excluir">
                 <i class="fas fa-trash"></i>
               </button>
             </td>
@@ -1704,6 +1851,7 @@ const firebaseConfig = {
 
       function atualizarContador() {
         document.getElementById('contador').innerText = `Total de fichas: ${fichasCache.length}`;
+        atualizarKPIs();
       }
 
       function formatarDataBR(data) {
@@ -1748,6 +1896,7 @@ const firebaseConfig = {
           li.textContent = `${index + 1}. ${type}: ${chave}`;
           lista.appendChild(li);
         });
+        atualizarKPIs();
       }
 
       function toggleDuplicados() {
@@ -2259,7 +2408,27 @@ function gerarPDF() {
     function mostrarView(view) {
       document.getElementById('viewRegistros').classList.toggle('oculto', view !== 'registros');
       document.getElementById('viewCadastro').classList.toggle('oculto', view !== 'cadastro');
+      document.querySelectorAll('.nav-item[data-view]').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
       window.scrollTo(0, 0);
+    }
+
+    // Indicadores do painel (derivados dos dados já carregados)
+    function atualizarKPIs() {
+      var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+      var fichas = (typeof fichasCache !== 'undefined' && Array.isArray(fichasCache)) ? fichasCache : [];
+      set('kpiTotal', fichas.length);
+      set('kpiComunidades', new Set(fichas.map(function (f) { return f.localidade; }).filter(Boolean)).size);
+      set('kpiDuplicados', document.querySelectorAll('#listaDuplicados li').length);
+
+      var contagem = {};
+      fichas.forEach(function (f) {
+        [].concat(f.motivoAuxilio || []).forEach(function (m) { contagem[m] = (contagem[m] || 0) + 1; });
+      });
+      var top = Object.entries(contagem).sort(function (a, b) { return b[1] - a[1]; })[0];
+      set('kpiMotivo', top ? top[0] : '—');
+      set('kpiMotivoSub', top ? top[1] + (top[1] === 1 ? ' família' : ' famílias') : '\u00a0');
     }
 
     window.addEventListener('load', function () {
@@ -2268,7 +2437,5 @@ function gerarPDF() {
     });
 
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
